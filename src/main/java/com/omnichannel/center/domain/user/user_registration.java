@@ -3,7 +3,7 @@ package com.omnichannel.center.domain.user;
 import java.time.Instant;
 import java.util.UUID;
 
-public class UserRegistration {
+public class user_registration {
     private UUID guid;
     private String userEmail;
     private String verificationCode;

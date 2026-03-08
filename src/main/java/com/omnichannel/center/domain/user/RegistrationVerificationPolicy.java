@@ -3,7 +3,7 @@ package com.omnichannel.center.domain.user;
 import java.time.Instant;
 
 public class RegistrationVerificationPolicy {
-    public boolean canRegister(UserRegistration registration, String inputCode, String userName, String password) {
+    public boolean canRegister(user_registration registration, String inputCode, String userName, String password) {
         if (registration == null || registration.getStatus() != RegistrationStatus.PENDING) {
             return false;
         }

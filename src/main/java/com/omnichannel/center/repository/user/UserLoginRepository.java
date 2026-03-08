@@ -1,6 +1,6 @@
 package com.omnichannel.center.repository.user;
 
-import com.omnichannel.center.domain.user.UserLogin;
+import com.omnichannel.center.domain.user.user_login;
 import com.omnichannel.center.domain.user.UserStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,7 +20,7 @@ public class UserLoginRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public UserLogin insert(UserLogin input) {
+    public user_login insert(user_login input) {
         String sql = """
                 INSERT INTO user_login
                 (guid, user_email, user_name, password, password_hash, status, created_date, updated_date)
@@ -38,18 +38,18 @@ public class UserLoginRepository {
         return findByGuid(input.getGuid()).orElseThrow();
     }
 
-    public Optional<UserLogin> findByGuid(UUID guid) {
+    public Optional<user_login> findByGuid(UUID guid) {
         String sql = """
                 SELECT guid, user_email, user_name, password, password_hash, status, created_date, updated_date
                 FROM user_login
                 WHERE guid = ?
                 """;
 
-        List<UserLogin> result = jdbcTemplate.query(sql, rowMapper(), guid);
+        List<user_login> result = jdbcTemplate.query(sql, rowMapper(), guid);
         return result.stream().findFirst();
     }
 
-    public Optional<UserLogin> findActiveByEmail(String userEmail) {
+    public Optional<user_login> findActiveByEmail(String userEmail) {
         String sql = """
                 SELECT guid, user_email, user_name, password, password_hash, status, created_date, updated_date
                 FROM user_login
@@ -57,11 +57,11 @@ public class UserLoginRepository {
                   AND status = 'ACTIVE'
                 """;
 
-        List<UserLogin> result = jdbcTemplate.query(sql, rowMapper(), userEmail);
+        List<user_login> result = jdbcTemplate.query(sql, rowMapper(), userEmail);
         return result.stream().findFirst();
     }
 
-    public List<UserLogin> findByStatus(UserStatus status) {
+    public List<user_login> findByStatus(UserStatus status) {
         String sql = """
                 SELECT guid, user_email, user_name, password, password_hash, status, created_date, updated_date
                 FROM user_login
@@ -72,9 +72,9 @@ public class UserLoginRepository {
         return jdbcTemplate.query(sql, rowMapper(), status.name());
     }
 
-    private RowMapper<UserLogin> rowMapper() {
+    private RowMapper<user_login> rowMapper() {
         return (rs, rowNum) -> {
-            UserLogin user = new UserLogin();
+            user_login user = new user_login();
             user.setGuid((UUID) rs.getObject("guid"));
             user.setUserEmail(rs.getString("user_email"));
             user.setUserName(rs.getString("user_name"));

@@ -1,16 +1,12 @@
-package com.omnichannel.center.repository.clienttenant;
+package com.omnichannel.center.domain.user;
 
 import java.time.Instant;
 import java.util.UUID;
 
-public class ClientTenantHeader {
+public class permission_hdr {
     private UUID guid;
     private String code;
     private String name;
-    private String jdbcUrl;
-    private String dbUsername;
-    private String dbPassword;
-    private ClientTenantStatus status;
     private Instant createdDate;
     private Instant updatedDate;
 
@@ -36,38 +32,6 @@ public class ClientTenantHeader {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getJdbcUrl() {
-        return jdbcUrl;
-    }
-
-    public void setJdbcUrl(String jdbcUrl) {
-        this.jdbcUrl = jdbcUrl;
-    }
-
-    public String getDbUsername() {
-        return dbUsername;
-    }
-
-    public void setDbUsername(String dbUsername) {
-        this.dbUsername = dbUsername;
-    }
-
-    public String getDbPassword() {
-        return dbPassword;
-    }
-
-    public void setDbPassword(String dbPassword) {
-        this.dbPassword = dbPassword;
-    }
-
-    public ClientTenantStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(ClientTenantStatus status) {
-        this.status = status;
     }
 
     public Instant getCreatedDate() {

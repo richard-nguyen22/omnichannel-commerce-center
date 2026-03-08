@@ -2,7 +2,7 @@ package com.omnichannel.center.application.auth;
 
 import com.omnichannel.center.common.ApiException;
 import com.omnichannel.center.config.AppProperties;
-import com.omnichannel.center.domain.auth.AuthUser;
+import com.omnichannel.center.domain.user.user_login;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
@@ -24,14 +24,14 @@ public class JwtService {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String createAccessToken(AuthUser user, long accessTokenMinutes) {
+    public String createAccessToken(user_login user, long accessTokenMinutes) {
         Instant now = Instant.now();
         Instant exp = now.plusSeconds(accessTokenMinutes * 60);
 
         return Jwts.builder()
-                .subject(user.getId().toString())
-                .claim("email", user.getEmail())
-                .claim("fullName", user.getFullName())
+                .subject(user.getGuid().toString())
+                .claim("email", user.getUserEmail())
+                .claim("fullName", user.getUserName())
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(exp))
                 .signWith(secretKey)

@@ -3,9 +3,9 @@ package com.omnichannel.center.domain.auth;
 import java.time.Instant;
 import java.util.UUID;
 
-public class AuthRefreshToken {
+public class auth_refresh_token {
     private UUID id;
-    private UUID userId;
+    private UUID userGuid;
     private String tokenHash;
     private Instant expiresAt;
     private Instant revokedAt;
@@ -19,12 +19,12 @@ public class AuthRefreshToken {
         this.id = id;
     }
 
-    public UUID getUserId() {
-        return userId;
+    public UUID getUserGuid() {
+        return userGuid;
     }
 
-    public void setUserId(UUID userId) {
-        this.userId = userId;
+    public void setUserGuid(UUID userGuid) {
+        this.userGuid = userGuid;
     }
 
     public String getTokenHash() {

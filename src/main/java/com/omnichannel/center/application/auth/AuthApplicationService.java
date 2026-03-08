@@ -2,8 +2,9 @@ package com.omnichannel.center.application.auth;
 
 import com.omnichannel.center.common.ApiException;
 import com.omnichannel.center.config.AppProperties;
-import com.omnichannel.center.domain.auth.AuthRefreshToken;
-import com.omnichannel.center.domain.auth.AuthUser;
+import com.omnichannel.center.domain.auth.auth_refresh_token;
+import com.omnichannel.center.domain.user.UserStatus;
+import com.omnichannel.center.domain.user.user_login;
 import com.omnichannel.center.repository.auth.AuthRepository;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -35,12 +36,13 @@ public class AuthApplicationService {
     public AuthResult register(String rawEmail, String rawPassword, String rawFullName) {
         String email = rawEmail.trim().toLowerCase(Locale.ROOT);
 
-        AuthUser user = new AuthUser();
-        user.setId(UUID.randomUUID());
-        user.setEmail(email);
+        user_login user = new user_login();
+        user.setGuid(UUID.randomUUID());
+        user.setUserEmail(email);
+        user.setUserName(rawFullName.trim());
+        user.setPassword(rawPassword);
         user.setPasswordHash(passwordService.hash(rawPassword));
-        user.setFullName(rawFullName.trim());
-        user.setActive(true);
+        user.setStatus(UserStatus.ACTIVE);
 
         try {
             authRepository.createUser(user);
@@ -53,10 +55,10 @@ public class AuthApplicationService {
 
     public AuthResult login(String rawEmail, String rawPassword) {
         String email = rawEmail.trim().toLowerCase(Locale.ROOT);
-        AuthUser user = authRepository.findUserByEmail(email)
+        user_login user = authRepository.findUserByEmail(email)
                 .orElseThrow(() -> new ApiException(401, "Invalid email or password"));
 
-        if (!user.isActive()) {
+        if (user.getStatus() != UserStatus.ACTIVE) {
             throw new ApiException(403, "User is inactive");
         }
 
@@ -71,7 +73,7 @@ public class AuthApplicationService {
     public AuthResult refresh(String rawRefreshToken) {
         String refreshTokenHash = refreshTokenCodec.sha256Hex(rawRefreshToken);
 
-        AuthRefreshToken token = authRepository.findActiveRefreshTokenByHash(refreshTokenHash)
+        auth_refresh_token token = authRepository.findActiveRefreshTokenByHash(refreshTokenHash)
                 .orElseThrow(() -> new ApiException(401, "Invalid refresh token"));
 
         if (token.getExpiresAt().isBefore(Instant.now())) {
@@ -79,7 +81,7 @@ public class AuthApplicationService {
             throw new ApiException(401, "Refresh token expired");
         }
 
-        AuthUser user = authRepository.findUserById(token.getUserId())
+        user_login user = authRepository.findUserByGuid(token.getUserGuid())
                 .orElseThrow(() -> new ApiException(401, "Invalid refresh token"));
 
         authRepository.revokeRefreshToken(token.getId());
@@ -92,7 +94,7 @@ public class AuthApplicationService {
                 .ifPresent(token -> authRepository.revokeRefreshToken(token.getId()));
     }
 
-    private AuthResult createTokenResponse(AuthUser user) {
+    private AuthResult createTokenResponse(user_login user) {
         long accessTokenMinutes = appProperties.getAuth().getAccessTokenMinutes();
         long refreshTokenDays = appProperties.getAuth().getRefreshTokenDays();
 
@@ -101,9 +103,9 @@ public class AuthApplicationService {
         String rawRefreshToken = refreshTokenCodec.generateRawToken();
         String refreshTokenHash = refreshTokenCodec.sha256Hex(rawRefreshToken);
 
-        AuthRefreshToken refreshToken = new AuthRefreshToken();
+        auth_refresh_token refreshToken = new auth_refresh_token();
         refreshToken.setId(UUID.randomUUID());
-        refreshToken.setUserId(user.getId());
+        refreshToken.setUserGuid(user.getGuid());
         refreshToken.setTokenHash(refreshTokenHash);
         refreshToken.setExpiresAt(Instant.now().plusSeconds(refreshTokenDays * 24 * 60 * 60));
         authRepository.createRefreshToken(refreshToken);
@@ -114,9 +116,9 @@ public class AuthApplicationService {
         response.setRefreshToken(rawRefreshToken);
 
         AuthResult.UserProfile profile = new AuthResult.UserProfile();
-        profile.setId(user.getId().toString());
-        profile.setEmail(user.getEmail());
-        profile.setFullName(user.getFullName());
+        profile.setId(user.getGuid().toString());
+        profile.setEmail(user.getUserEmail());
+        profile.setFullName(user.getUserName());
         response.setUser(profile);
 
         return response;

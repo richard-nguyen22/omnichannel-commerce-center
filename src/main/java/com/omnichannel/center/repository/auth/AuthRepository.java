@@ -1,7 +1,8 @@
 package com.omnichannel.center.repository.auth;
 
-import com.omnichannel.center.domain.auth.AuthRefreshToken;
-import com.omnichannel.center.domain.auth.AuthUser;
+import com.omnichannel.center.domain.auth.auth_refresh_token;
+import com.omnichannel.center.domain.user.UserStatus;
+import com.omnichannel.center.domain.user.user_login;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -22,66 +23,67 @@ public class AuthRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public AuthUser createUser(AuthUser input) {
+    public user_login createUser(user_login input) {
         String sql = """
-                INSERT INTO app_user (id, email, password_hash, full_name, is_active)
-                VALUES (?, ?, ?, ?, ?)
+                INSERT INTO user_login (guid, user_email, user_name, password, password_hash, status)
+                VALUES (?, ?, ?, ?, ?, ?)
                 """;
 
         jdbcTemplate.update(sql,
-                input.getId(),
-                input.getEmail(),
+                input.getGuid(),
+                input.getUserEmail(),
+                input.getUserName(),
+                input.getPassword(),
                 input.getPasswordHash(),
-                input.getFullName(),
-                input.isActive());
+                input.getStatus().name());
 
-        return findUserById(input.getId()).orElseThrow();
+        return findUserByGuid(input.getGuid()).orElseThrow();
     }
 
-    public Optional<AuthUser> findUserByEmail(String email) {
+    public Optional<user_login> findUserByEmail(String email) {
         String sql = """
-                SELECT id, email, password_hash, full_name, is_active, created_at, updated_at
-                FROM app_user
-                WHERE email = ?
+                SELECT guid, user_email, user_name, password, password_hash, status, created_date, updated_date
+                FROM user_login
+                WHERE user_email = ?
                 """;
 
-        List<AuthUser> users = jdbcTemplate.query(sql, userRowMapper(), email);
+        List<user_login> users = jdbcTemplate.query(sql, userRowMapper(), email);
         return users.stream().findFirst();
     }
 
-    public Optional<AuthUser> findUserById(UUID id) {
+    public Optional<user_login> findUserByGuid(UUID guid) {
         String sql = """
-                SELECT id, email, password_hash, full_name, is_active, created_at, updated_at
-                FROM app_user
-                WHERE id = ?
+                SELECT guid, user_email, user_name, password, password_hash, status, created_date, updated_date
+                FROM user_login
+                WHERE guid = ?
                 """;
-        List<AuthUser> users = jdbcTemplate.query(sql, userRowMapper(), id);
+        List<user_login> users = jdbcTemplate.query(sql, userRowMapper(), guid);
         return users.stream().findFirst();
     }
 
-    public AuthRefreshToken createRefreshToken(AuthRefreshToken input) {
+    public auth_refresh_token createRefreshToken(auth_refresh_token input) {
         String sql = """
-                INSERT INTO auth_refresh_token (id, user_id, token_hash, expires_at)
+                INSERT INTO auth_refresh_token (id, user_guid, token_hash, expires_at)
                 VALUES (?, ?, ?, ?)
                 """;
         jdbcTemplate.update(sql,
                 input.getId(),
-                input.getUserId(),
+                input.getUserGuid(),
                 input.getTokenHash(),
                 Timestamp.from(input.getExpiresAt()));
 
         return findActiveRefreshTokenByHash(input.getTokenHash()).orElseThrow();
     }
 
-    public Optional<AuthRefreshToken> findActiveRefreshTokenByHash(String tokenHash) {
+    public Optional<auth_refresh_token> findActiveRefreshTokenByHash(String tokenHash) {
         String sql = """
-                SELECT id, user_id, token_hash, expires_at, revoked_at, created_at
+                SELECT id, user_guid, token_hash, expires_at, revoked_at, created_at
                 FROM auth_refresh_token
                 WHERE token_hash = ?
                   AND revoked_at IS NULL
                 """;
 
-        List<AuthRefreshToken> tokens = jdbcTemplate.query(sql, refreshTokenRowMapper(), tokenHash);
+        List<auth_refresh_token> tokens = jdbcTemplate.query(sql, refreshTokenRowMapper(), tokenHash);
         return tokens.stream().findFirst();
     }
 
@@ -96,25 +98,26 @@ public class AuthRepository {
         jdbcTemplate.update(sql, tokenId);
     }
 
-    private RowMapper<AuthUser> userRowMapper() {
+    private RowMapper<user_login> userRowMapper() {
         return (rs, rowNum) -> {
-            AuthUser user = new AuthUser();
-            user.setId((UUID) rs.getObject("id"));
-            user.setEmail(rs.getString("email"));
+            user_login user = new user_login();
+            user.setGuid((UUID) rs.getObject("guid"));
+            user.setUserEmail(rs.getString("user_email"));
+            user.setUserName(rs.getString("user_name"));
+            user.setPassword(rs.getString("password"));
             user.setPasswordHash(rs.getString("password_hash"));
-            user.setFullName(rs.getString("full_name"));
-            user.setActive(rs.getBoolean("is_active"));
-            user.setCreatedAt(timestampToInstant(rs, "created_at"));
-            user.setUpdatedAt(timestampToInstant(rs, "updated_at"));
+            user.setStatus(UserStatus.valueOf(rs.getString("status")));
+            user.setCreatedDate(timestampToInstant(rs, "created_date"));
+            user.setUpdatedDate(timestampToInstant(rs, "updated_date"));
             return user;
         };
     }
 
-    private RowMapper<AuthRefreshToken> refreshTokenRowMapper() {
+    private RowMapper<auth_refresh_token> refreshTokenRowMapper() {
         return (rs, rowNum) -> {
-            AuthRefreshToken token = new AuthRefreshToken();
+            auth_refresh_token token = new auth_refresh_token();
             token.setId((UUID) rs.getObject("id"));
-            token.setUserId((UUID) rs.getObject("user_id"));
+            token.setUserGuid((UUID) rs.getObject("user_guid"));
             token.setTokenHash(rs.getString("token_hash"));
             token.setExpiresAt(timestampToInstant(rs, "expires_at"));
             token.setRevokedAt(timestampToInstant(rs, "revoked_at"));

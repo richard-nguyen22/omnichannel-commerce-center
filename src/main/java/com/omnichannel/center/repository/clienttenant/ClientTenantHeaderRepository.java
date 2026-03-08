@@ -18,7 +18,7 @@ public class ClientTenantHeaderRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<ClientTenantHeader> findAllActive() {
+    public List<client_tenant_hdr> findAllActive() {
         String sql = """
                 SELECT guid, code, name, jdbc_url, db_username, db_password, status, created_date, updated_date
                 FROM client_tenant_hdr
@@ -29,7 +29,7 @@ public class ClientTenantHeaderRepository {
         return jdbcTemplate.query(sql, rowMapper());
     }
 
-    public Optional<ClientTenantHeader> findActiveByCode(String code) {
+    public Optional<client_tenant_hdr> findActiveByCode(String code) {
         String sql = """
                 SELECT guid, code, name, jdbc_url, db_username, db_password, status, created_date, updated_date
                 FROM client_tenant_hdr
@@ -37,13 +37,13 @@ public class ClientTenantHeaderRepository {
                   AND status = 'ACTIVE'
                 """;
 
-        List<ClientTenantHeader> result = jdbcTemplate.query(sql, rowMapper(), code);
+        List<client_tenant_hdr> result = jdbcTemplate.query(sql, rowMapper(), code);
         return result.stream().findFirst();
     }
 
-    private RowMapper<ClientTenantHeader> rowMapper() {
+    private RowMapper<client_tenant_hdr> rowMapper() {
         return (rs, rowNum) -> {
-            ClientTenantHeader header = new ClientTenantHeader();
+            client_tenant_hdr header = new client_tenant_hdr();
             header.setGuid((UUID) rs.getObject("guid"));
             header.setCode(rs.getString("code"));
             header.setName(rs.getString("name"));

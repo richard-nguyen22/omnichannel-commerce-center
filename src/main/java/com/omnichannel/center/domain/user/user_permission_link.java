@@ -3,7 +3,7 @@ package com.omnichannel.center.domain.user;
 import java.time.Instant;
 import java.util.UUID;
 
-public class UserPermissionLink {
+public class user_permission_link {
     private UUID userGuid;
     private UUID permissionGuid;
     private Instant createdDate;
