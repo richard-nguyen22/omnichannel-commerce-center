@@ -1,0 +1,28 @@
+server:
+  port: 8080
+
+app:
+  base-url: http://localhost:8080
+  oauth:
+    lazada:
+      client-id: replace_me
+      client-secret: replace_me
+      auth-url: https://auth.lazada.com/oauth/authorize
+      token-url: https://auth.lazada.com/oauth/token
+      scopes:
+        - basic
+    shopee:
+      client-id: replace_me
+      client-secret: replace_me
+      auth-url: https://partner.shopeemobile.com/api/v2/shop/auth_partner
+      token-url: https://partner.shopeemobile.com/api/v2/auth/token/get
+      scopes:
+        - read_write
+    tiktok:
+      client-id: replace_me
+      client-secret: replace_me
+      auth-url: https://auth.tiktok-shops.com/api/v2/authorize
+      token-url: https://auth.tiktok-shops.com/api/v2/token/get
+      scopes:
+        - shop.product
+        - shop.order
