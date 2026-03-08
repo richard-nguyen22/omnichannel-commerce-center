@@ -1,6 +1,6 @@
 # Omnichannel Commerce Center (Java 17)
 
-Initial software architecture for omnichannel integrations (Lazada, Shopee, TikTok) with OAuth2 and Master Item module.
+Initial software architecture for omnichannel integrations (Lazada, Shopee, TikTok) with OAuth2, Master Item module, and database-backed login.
 
 ## Stack
 
@@ -28,12 +28,20 @@ Initial software architecture for omnichannel integrations (Lazada, Shopee, TikT
   - Health endpoint and global exception handling.
 - `config`:
   - Typed app/channel config (`application.yml`).
+- `auth`:
+  - Register, login, refresh token, and logout endpoints.
+  - JWT access token and hashed refresh token persistence.
 
-Persistence is currently in-memory repositories for bootstrapping.
+OAuth and master item are currently in-memory repositories for bootstrapping.
+Authentication is backed by PostgreSQL through `JdbcTemplate`.
 
 ## Endpoints
 
 - `GET /health`
+- `POST /auth/register`
+- `POST /auth/login`
+- `POST /auth/refresh`
+- `POST /auth/logout`
 - `GET /oauth/{channel}/authorize?tenantId=tenant_1`
 - `GET /oauth/{channel}/callback?code=...&state=...`
 - `GET /channel-accounts?tenantId=tenant_1`
@@ -41,6 +49,12 @@ Persistence is currently in-memory repositories for bootstrapping.
 - `GET /master-items?tenantId=tenant_1`
 - `GET /master-items/{id}`
 - `PUT /master-items/{id}`
+
+## Database and Liquibase
+
+- Liquibase master changelog: `src/main/resources/db/changelog/db.changelog-master.yaml`
+- Auth tables changelog: `src/main/resources/db/changelog/001-create-auth-tables.yaml`
+- PostgreSQL datasource and Liquibase are configured in `application.yml`.
 
 ## Next steps
 

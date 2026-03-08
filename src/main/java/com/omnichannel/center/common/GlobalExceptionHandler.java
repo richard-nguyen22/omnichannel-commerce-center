@@ -5,6 +5,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -32,10 +33,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(payload);
     }
 
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Map<String, Object>> handleMethodNotSupported(HttpRequestMethodNotSupportedException ex) {
+        Map<String, Object> payload = new LinkedHashMap<>();
+        payload.put("message", "Method not allowed");
+        payload.put("detail", ex.getMessage());
+        return ResponseEntity.status(405).body(payload);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, Object>> handleException(Exception ex) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("message", "Internal server error");
+        payload.put("detail", ex.getMessage());
         return ResponseEntity.status(500).body(payload);
     }
 }

@@ -1,0 +1,41 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/omnichannel_commerce
+    username: postgres
+    password: postgres
+  liquibase:
+    enabled: false
+    change-log: classpath:liquibase/liquibase-changelog-001.sql
+
+app:
+  base-url: http://localhost:8888
+  auth:
+    jwt-secret: change_this_secret_to_a_long_random_32_plus_characters
+    access-token-minutes: 15
+    refresh-token-days: 14
+  oauth:
+    lazada:
+      client-id: replace_me
+      client-secret: replace_me
+      auth-url: https://auth.lazada.com/oauth/authorize
+      token-url: https://auth.lazada.com/oauth/token
+      scopes:
+        - basic
+    shopee:
+      client-id: replace_me
+      client-secret: replace_me
+      auth-url: https://partner.shopeemobile.com/api/v2/shop/auth_partner
+      token-url: https://partner.shopeemobile.com/api/v2/auth/token/get
+      scopes:
+        - read_write
+    tiktok:
+      client-id: replace_me
+      client-secret: replace_me
+      auth-url: https://auth.tiktok-shops.com/api/v2/authorize
+      token-url: https://auth.tiktok-shops.com/api/v2/token/get
+      scopes:
+        - shop.product
+        - shop.order
